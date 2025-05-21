@@ -29,6 +29,8 @@ public class MenuLateral {
 		this.mostrarIconoBola = true;
 	}
 	
+	
+	
 	public void activarIconoExplosion() {
 		this.mostrarIconoBurbuja = false;
 		this.mostrarIconoBola = false;
@@ -46,38 +48,51 @@ public class MenuLateral {
         entorno.dibujarRectangulo(700, 300, 200, 600, 0, Color.DARK_GRAY);
 
         // Botón 1
-        entorno.dibujarRectangulo(700, 330, 160, 40, 0, Color.GRAY);
+        entorno.dibujarRectangulo(700, 260, 160, 40, 0, Color.GRAY);
         entorno.cambiarFont("Arial", 16, Color.WHITE);
-        entorno.escribirTexto("Bola de fuego", 650, 335);
+        entorno.escribirTexto("Bola de fuego", 650, 265);
 
         // Botón 2
-        entorno.dibujarRectangulo(700, 390, 160, 40, 0, Color.GRAY);
+        entorno.dibujarRectangulo(700, 320, 160, 40, 0, Color.GRAY);
         entorno.cambiarFont("Arial", 16, Color.WHITE);
-        entorno.escribirTexto("Explosion de luz", 645, 395);
+        entorno.escribirTexto("Explosion de luz", 645, 325);
 
         // Botón 3
-        entorno.dibujarRectangulo(700, 450, 160, 40, 0, Color.GRAY);
+        entorno.dibujarRectangulo(700,380, 160, 40, 0, Color.GRAY);
         entorno.cambiarFont("Arial", 16, Color.WHITE);
-        entorno.escribirTexto("Burbuja protectora", 635, 455);
+        entorno.escribirTexto("Burbuja protectora", 635, 385);
         
         // Botón SALIR        
-        entorno.dibujarRectangulo(740, 570, 80, 40, 0, Color.GRAY);
+        entorno.dibujarRectangulo(740, 570, 80, 40, 0, Color.RED);
         entorno.cambiarFont("Arial", 18, Color.WHITE);
         entorno.escribirTexto("Salir", 720, 575);
         
+        // VIDA
+        entorno.dibujarRectangulo(700, 420, 160, 10, 0, Color.RED);
+        // ENERGIA
+        entorno.dibujarRectangulo(700, 445, 160, 10, 0, Color.BLUE);
+        
         // Cuadrado de Habilidades
-        entorno.dibujarRectangulo(700, 150, 140, 140, 0, Color.GRAY);
-         
+        entorno.dibujarRectangulo(700, 120, 140, 140, 0, Color.GRAY);  
         if (mostrarIconoBola) {
-        	entorno.dibujarImagen(iconoBola, 700, 150, 0, 2);
+        	entorno.dibujarImagen(iconoBola, 700, 120, 0, 2);
+        	entorno.dibujarRectangulo(700, 260, 160, 40, 0, Color.ORANGE);
+        	entorno.cambiarFont("Arial", 16, Color.BLACK);
+            entorno.escribirTexto("Bola de fuego", 650, 265);
         }
         
         if (mostrarIconoExplosion) {
-        	entorno.dibujarImagen(iconoExplosion, 700, 150, 0, 2);
+        	entorno.dibujarImagen(iconoExplosion, 700, 120, 0, 2);
+        	entorno.dibujarRectangulo(700, 320, 160, 40, 0, Color.ORANGE);
+        	entorno.cambiarFont("Arial", 16, Color.BLACK);
+            entorno.escribirTexto("Explosion de luz", 645, 325);
         }
         
         if (mostrarIconoBurbuja) {
-        	entorno.dibujarImagen(iconoBurbuja, 700, 150, 0, 2);
+        	entorno.dibujarImagen(iconoBurbuja, 700, 120, 0, 2);
+        	entorno.dibujarRectangulo(700,380, 160, 40, 0, Color.ORANGE);
+        	entorno.cambiarFont("Arial", 16, Color.BLACK);
+            entorno.escribirTexto("Burbuja protectora", 635, 385);
         }
     }
 	

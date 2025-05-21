@@ -11,12 +11,15 @@ public class Juego extends InterfaceJuego{
 	
 	private Image fondo;
 	private MenuLateral menu;
+	private Personaje personaje;
 	
 	private Obstaculo[] rocas;
 	
 	Juego(){
 		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
+		
 		fondo = new ImageIcon(getClass().getResource("/imagenes/FondoTierra2D.png")).getImage();
+		personaje = new Personaje(300,300);
 		menu = new MenuLateral();
 		
 		rocas = new Obstaculo[] {
@@ -37,6 +40,21 @@ public class Juego extends InterfaceJuego{
 		    roca.dibujar(entorno);
 		}
 		
+//		MOVIMIENTO
+		if (entorno.estaPresionada('a')) {
+	        personaje.moverIzquierda();
+	    }
+	    if (entorno.estaPresionada('d')) {
+	        personaje.moverDerecha();
+	    }
+	    if (entorno.estaPresionada('w')) {
+	        personaje.moverArriba();
+	    }
+	    if (entorno.estaPresionada('s')) {
+	        personaje.moverAbajo();
+	    }
+		
+//	    HABILIDADES
 		if (entorno.estaPresionada('1')) {
 	        menu.activarIconoBola();
 	    }
@@ -46,6 +64,8 @@ public class Juego extends InterfaceJuego{
 		if (entorno.estaPresionada('3')) {
 	        menu.activarIconoBurbuja();
 	    }
+		
+		personaje.dibujar(entorno);
 		
 		menu.dibujar(entorno);
 		menu.manejarEntrada(entorno);
