@@ -12,22 +12,24 @@ public class Juego extends InterfaceJuego{
 	private Image fondo;
 	private MenuLateral menu;
 	private Personaje personaje;
+	private Enemigo murcielago;
 	
 	private Obstaculo[] rocas;
 	
 	Juego(){
-		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
+		this.entorno = new Entorno(this, "Proyecto para TP 7", 800, 600);
 		
 		fondo = new ImageIcon(getClass().getResource("/imagenes/FondoTierra2D.png")).getImage();
-		personaje = new Personaje(300,300);
 		menu = new MenuLateral();
+		personaje = new Personaje(300,300);
+		murcielago = new Enemigo(-50, Math.random()* 600);
 		
 		rocas = new Obstaculo[] {
 				new Obstaculo(150, 200),
 			    new Obstaculo(150, 400),
 			    new Obstaculo(370, 540),
 			    new Obstaculo(450, 150),
-			    new Obstaculo(460, 400)
+			    new Obstaculo(460, 390)
 		};
 		
 		this.entorno.iniciar();
@@ -42,17 +44,17 @@ public class Juego extends InterfaceJuego{
 		
 //		MOVIMIENTO
 		if (entorno.estaPresionada('a')) {
-	        personaje.moverIzquierda();
-	    }
-	    if (entorno.estaPresionada('d')) {
-	        personaje.moverDerecha();
-	    }
-	    if (entorno.estaPresionada('w')) {
-	        personaje.moverArriba();
-	    }
-	    if (entorno.estaPresionada('s')) {
-	        personaje.moverAbajo();
-	    }
+		    personaje.moverIzquierda(rocas);
+		}
+		if (entorno.estaPresionada('d')) {
+		    personaje.moverDerecha(rocas);
+		}
+		if (entorno.estaPresionada('w')) {
+		    personaje.moverArriba(rocas);
+		}
+		if (entorno.estaPresionada('s')) {
+		    personaje.moverAbajo(rocas);
+		}
 		
 //	    HABILIDADES
 		if (entorno.estaPresionada('1')) {
@@ -64,8 +66,13 @@ public class Juego extends InterfaceJuego{
 		if (entorno.estaPresionada('3')) {
 	        menu.activarIconoBurbuja();
 	    }
-		
+
 		personaje.dibujar(entorno);
+		
+		
+//		ENEMIGO
+		murcielago.moverHacia(personaje.getX(), personaje.getY());
+		murcielago.dibujar(entorno);
 		
 		menu.dibujar(entorno);
 		menu.manejarEntrada(entorno);
