@@ -11,10 +11,13 @@ public class Personaje {
     private double y;
     private Image magoFrente, magoArriba, magoDerecha, magoIzquierda;
     private String direccion;
+    private int vida = 100;
+    private int vidaMax = 100;
     
     public Personaje(double x, double y) {
 		this.x = x;
 		this.y = y;
+		this.vida = 100;
 		
 		magoFrente = new ImageIcon(getClass().getResource("/imagenes/MagoAbj.png")).getImage();
 		magoArriba = new ImageIcon(getClass().getResource("/imagenes/MagoArr.png")).getImage();
@@ -39,7 +42,7 @@ public class Personaje {
         return true; // no hay colisión
     }
     
-    
+//   MOVIMIENTO PERSONAJE 
     public void moverIzquierda(Obstaculo[] rocas) {
         double nuevoX = x - VELOCIDAD;
         if (nuevoX - PERSONAJE_ANCHO / 2 > 0 && puedeMoverA(nuevoX, y, rocas)) {
@@ -71,6 +74,26 @@ public class Personaje {
             direccion = "abajo";
         }
     }
+    
+    
+//    VIDA PERSONAJE
+    public int getVida() {
+        return vida;
+    }
+
+    public int getVidaMax() {
+        return vidaMax;
+    }
+
+    public void recibirDaño(int cantidad) {
+        vida -= cantidad;
+        if (vida < 0) vida = 0;
+    }
+
+    public boolean estaMuerto() {
+        return vida <= 0;
+    }
+    
     
     
     public void dibujar(Entorno entorno) {
