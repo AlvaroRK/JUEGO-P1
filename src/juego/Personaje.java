@@ -7,27 +7,36 @@ import entorno.Entorno;
 import static juego.Constantes.*;
 
 public class Personaje {
-	private double x;
+
+    // --- Atributos ---
+    private double x;
     private double y;
     private Image magoFrente, magoArriba, magoDerecha, magoIzquierda;
     private String direccion;
+    
     private int vida = 100;
     private int vidaMax = 100;
     
+    private int energia = 100;
+    private int energiaMax = 100;
+    private int energiaRecuperacion = 2; // cuánto recupera por segundo
+    private long ultimoTickRecuperacion = System.currentTimeMillis();
+
+    // --- Constructor ---
     public Personaje(double x, double y) {
-		this.x = x;
-		this.y = y;
-		this.vida = 100;
-		
-		magoFrente = new ImageIcon(getClass().getResource("/imagenes/MagoAbj.png")).getImage();
-		magoArriba = new ImageIcon(getClass().getResource("/imagenes/MagoArr.png")).getImage();
-		magoDerecha = new ImageIcon(getClass().getResource("/imagenes/MagoDer.png")).getImage();
-		magoIzquierda = new ImageIcon(getClass().getResource("/imagenes/MagoIzq.png")).getImage();
-		
-		direccion = "abajo";
-	}
-    
-//    COLISION ROCAS
+        this.x = x;
+        this.y = y;
+        this.vida = 100;
+
+        magoFrente = new ImageIcon(getClass().getResource("/imagenes/MagoAbj.png")).getImage();
+        magoArriba = new ImageIcon(getClass().getResource("/imagenes/MagoArr.png")).getImage();
+        magoDerecha = new ImageIcon(getClass().getResource("/imagenes/MagoDer.png")).getImage();
+        magoIzquierda = new ImageIcon(getClass().getResource("/imagenes/MagoIzq.png")).getImage();
+
+        direccion = "abajo";
+    }
+
+    // --- Validar colisión con obstáculos ---
     private boolean puedeMoverA(double nuevoX, double nuevoY, Obstaculo[] rocas) {
         for (Obstaculo roca : rocas) {
             double dx = Math.abs(nuevoX - roca.getX());
@@ -41,8 +50,8 @@ public class Personaje {
         }
         return true; // no hay colisión
     }
-    
-//   MOVIMIENTO PERSONAJE 
+
+    // --- Movimiento ---
     public void moverIzquierda(Obstaculo[] rocas) {
         double nuevoX = x - VELOCIDAD;
         if (nuevoX - PERSONAJE_ANCHO / 2 > 0 && puedeMoverA(nuevoX, y, rocas)) {
@@ -74,9 +83,8 @@ public class Personaje {
             direccion = "abajo";
         }
     }
-    
-    
-//    VIDA PERSONAJE
+
+    // --- Vida ---
     public int getVida() {
         return vida;
     }
@@ -94,8 +102,40 @@ public class Personaje {
         return vida <= 0;
     }
     
+ // --- Energía ---
+    public int getEnergia() {
+        return energia;
+    }
+
+    public int getEnergiaMax() {
+        return energiaMax;
+    }
+
+    public boolean consumirEnergia(int cantidad) {
+        if (energia >= cantidad) {
+            energia -= cantidad;
+            return true;
+        }
+        return false;
+    }
+
+    public void recuperarEnergia() {
+        long ahora = System.currentTimeMillis();
+        if (ahora - ultimoTickRecuperacion >= 1000) { // cada 1 segundo
+            energia += energiaRecuperacion;
+            if (energia > energiaMax) energia = energiaMax;
+            ultimoTickRecuperacion = ahora;
+        }
+    }
     
-    
+    public void agregarEnergia(int cantidad) {
+        energia += cantidad;
+        if (energia > energiaMax) {
+            energia = energiaMax;
+        }
+    }
+
+    // --- Dibujar personaje ---
     public void dibujar(Entorno entorno) {
         Image imagen;
 
@@ -117,9 +157,8 @@ public class Personaje {
 
         entorno.dibujarImagen(imagen, x, y, 0);
     }
-    
-    
-//    GETTERS
+
+    // --- Getters ---
     public double getX() {
         return x;
     }
@@ -127,5 +166,4 @@ public class Personaje {
     public double getY() {
         return y;
     }
-    
 }

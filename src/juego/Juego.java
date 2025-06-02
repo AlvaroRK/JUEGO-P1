@@ -2,99 +2,268 @@ package juego;
 
 import java.awt.*;
 import javax.swing.*;
+
 import entorno.Entorno;
 import entorno.InterfaceJuego;
 import juego.MenuLateral.Habilidad;
 
 public class Juego extends InterfaceJuego {
-	private Entorno entorno;
-	private Image fondo;
-	private MenuLateral menu;
-	private boolean gameOver = false;
-	private Personaje personaje;
-	private Enemigo[] murcielagos;
-	private Obstaculo[] rocas;
 
-	Juego() {
-		this.entorno = new Entorno(this, "Proyecto para TP 7", 800, 600);
+    // === Atributos ===
+    private Entorno entorno;
+    private Image fondo;
+    private MenuLateral menu;
+    private boolean gameOver = false;
 
-		fondo = new ImageIcon(getClass().getResource("/imagenes/FondoTierra2D.png")).getImage();
-		menu = new MenuLateral();
-		personaje = new Personaje(300, 300);
-		murcielagos = new Enemigo[5];
-		for (int i = 0; i < murcielagos.length; i++) {
-			murcielagos[i] = generarMurcielagoAfuera();
-		}
+    private Personaje personaje;
+    private Enemigo[] murcielagos;
+    private Obstaculo[] rocas;
 
-		rocas = new Obstaculo[] {
-				new Obstaculo(150, 200),
-				new Obstaculo(150, 400),
-				new Obstaculo(370, 540),
-				new Obstaculo(450, 150),
-				new Obstaculo(460, 390)
-		};
+    private BolaDeFuego bola;
+    private BurbujaProtectora burbuja;
+    private ExplosionDeLuz luz;
 
-		this.entorno.iniciar();
-	}
+    private boolean dañoBolaAplicado = false;
+    private boolean dañoLuzAplicado = false;
+    
+    private int enemigosEliminados = 0;
 
-	private Enemigo generarMurcielagoAfuera() {
-		double x, y;
-		int lado = (int) (Math.random() * 4);
-		switch (lado) {
-			case 0: x = -50; y = Math.random() * 600; break;
-			case 1: x = 850; y = Math.random() * 600; break;
-			case 2: x = Math.random() * 800; y = -50; break;
-			default: x = Math.random() * 800; y = 650; break;
-		}
-		return new Enemigo(x, y);
-	}
+    // === Constructor ===
+    public Juego() {
+        entorno = new Entorno(this, "Proyecto para TP 7", 800, 600);
+        fondo = new ImageIcon(getClass().getResource("/imagenes/FondoTierra2D.png")).getImage();
+        menu = new MenuLateral();
+        personaje = new Personaje(300, 300);
 
-	public void tick() {
-		entorno.dibujarImagen(fondo, 400, 300, 0);
+        murcielagos = new Enemigo[10];
+        for (int i = 0; i < murcielagos.length; i++)
+            murcielagos[i] = generarMurcielagoAfuera();
 
-		for (Obstaculo roca : rocas) {
-			roca.dibujar(entorno);
-		}
+        rocas = new Obstaculo[] {
+            new Obstaculo(150, 200),
+            new Obstaculo(150, 400),
+            new Obstaculo(370, 540),
+            new Obstaculo(450, 150),
+            new Obstaculo(460, 390)
+        };
 
-		// Movimiento
-		if (entorno.estaPresionada('a')) personaje.moverIzquierda(rocas);
-		if (entorno.estaPresionada('d')) personaje.moverDerecha(rocas);
-		if (entorno.estaPresionada('w')) personaje.moverArriba(rocas);
-		if (entorno.estaPresionada('s')) personaje.moverAbajo(rocas);
+        bola = new BolaDeFuego();
+        burbuja = new BurbujaProtectora();
+        luz = new ExplosionDeLuz();
 
-		// Habilidades
-		if (entorno.estaPresionada('1')) menu.activarHabilidad(Habilidad.BOLA);
-		if (entorno.estaPresionada('2')) menu.activarHabilidad(Habilidad.EXPLOSION);
-		if (entorno.estaPresionada('3')) menu.activarHabilidad(Habilidad.BURBUJA);
+        entorno.iniciar();
+    }
 
-		personaje.dibujar(entorno);
+    // === Loop principal ===
+    public void tick() {
+        entorno.dibujarImagen(fondo, 400, 300, 0);
+        dibujarEscenario();
 
-		// Enemigos
-		for (Enemigo m : murcielagos) {
-			m.moverHacia(personaje.getX(), personaje.getY());
-			m.dibujar(entorno);
+        controlarMovimiento();
+        personaje.recuperarEnergia();
 
-			double dx = personaje.getX() - m.getX();
-			double dy = personaje.getY() - m.getY();
-			double distancia = Math.sqrt(dx * dx + dy * dy);
+        actualizarEnemigos();
+        controlarClicksYHabilidades();
+        actualizarHabilidades();
+        dibujarUI();
 
-			if (distancia < 30 && m.puedePegar()) {
-				personaje.recibirDaño(3);
-			}
-		}
+        if (personaje.estaMuerto() || enemigosEliminados >= 50)
+            gameOver = true;
+        if (gameOver)
+            mostrarGameOver();
+    }
 
-		if (personaje.estaMuerto()) gameOver = true;
+    // === Escenario y UI ===
+    private void dibujarEscenario() {
+        for (Obstaculo roca : rocas)
+            roca.dibujar(entorno);
+        personaje.dibujar(entorno);
+    }
 
-		menu.dibujar(entorno, personaje.getVida(), personaje.getVidaMax());
-		menu.manejarEntrada(entorno);
+    private void mostrarGameOver() {
+        entorno.cambiarFont("Arial", 32, Color.WHITE);
 
-		if (gameOver) {
-			entorno.cambiarFont("Arial", 32, Color.WHITE);
-			entorno.escribirTexto("¡GAME OVER!", 250, 300);
-		}
-	}
+        if (enemigosEliminados >= 50) {
+            entorno.escribirTexto("¡VICTORIA! Derrotaste a 50 enemigos", 150, 300);
+        } else {
+            entorno.escribirTexto("¡GAME OVER!", 250, 300);
+        }
+    }
 
-	public static void main(String[] args) {
-		new Juego();
-	}
+    private void dibujarUI() {
+        menu.dibujar(entorno,
+                     personaje.getVida(),
+                     personaje.getVidaMax(),
+                     personaje.getEnergia(),
+                     personaje.getEnergiaMax());
+        menu.manejarEntrada(entorno);
+        
+        entorno.cambiarFont("Arial", 20, Color.WHITE);
+        entorno.escribirTexto("Enemigos eliminados: " + enemigosEliminados, 220, 20);
+    }
+
+    // === Movimiento del personaje ===
+    private void controlarMovimiento() {
+        if (entorno.estaPresionada('a')) personaje.moverIzquierda(rocas);
+        if (entorno.estaPresionada('d')) personaje.moverDerecha(rocas);
+        if (entorno.estaPresionada('w')) personaje.moverArriba(rocas);
+        if (entorno.estaPresionada('s')) personaje.moverAbajo(rocas);
+    }
+
+    // === Enemigos ===
+    private void actualizarEnemigos() {
+        for (int i = 0; i < murcielagos.length; i++) {
+            Enemigo m = murcielagos[i];
+            if (m == null) continue;
+
+            m.moverHacia(personaje.getX(), personaje.getY());
+            m.dibujar(entorno);
+
+            double dx = personaje.getX() - m.getX();
+            double dy = personaje.getY() - m.getY();
+            double distancia = Math.sqrt(dx * dx + dy * dy);
+
+            if (distancia < 30 && m.puedePegar(burbuja))
+                personaje.recibirDaño(3);
+
+            if (bola.estaActiva()) {
+                double distBola = Math.hypot(bola.getX() - m.getX(), bola.getY() - m.getY());
+                if (distBola < 30) {
+                    m.recibirDaño(1);
+                    if (m.estaMuerto()) {
+                        enemigosEliminados++;
+                        murcielagos[i] = generarMurcielagoAfuera();
+                        personaje.agregarEnergia(10);
+                    }
+                }
+            }
+
+            if (luz.estaActiva()) {
+                double distLuz = Math.hypot(luz.getX() - m.getX(), luz.getY() - m.getY());
+                if (distLuz < 50) {
+                    m.recibirDaño(1);
+                    if (m.estaMuerto()) {
+                        enemigosEliminados++;
+                        murcielagos[i] = generarMurcielagoAfuera();
+                        personaje.agregarEnergia(10);
+                    }
+                }
+            }
+        }
+    }
+
+    private Enemigo generarMurcielagoAfuera() {
+        double x, y;
+        int lado = (int) (Math.random() * 4);
+
+        switch (lado) {
+            case 0: x = -50;  y = Math.random() * 600; break;
+            case 1: x = 850;  y = Math.random() * 600; break;
+            case 2: x = Math.random() * 800; y = -50; break;
+            default: x = Math.random() * 800; y = 650; break;
+        }
+
+        return new Enemigo(x, y);
+    }
+
+    // === Habilidades ===
+    private void controlarClicksYHabilidades() {
+        if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+            int mx = entorno.mouseX();
+            int my = entorno.mouseY();
+
+            if (estaEnMenu(mx, my))
+                menu.manejarClick(mx, my);
+            else
+                dispararHabilidad(mx, my);
+        }
+
+        if (entorno.sePresiono('1')) menu.setHabilidadActiva(Habilidad.BOLA);
+        if (entorno.sePresiono('2')) menu.setHabilidadActiva(Habilidad.EXPLOSION);
+        if (entorno.sePresiono('3')) menu.setHabilidadActiva(Habilidad.BURBUJA);
+    }
+
+    private boolean estaEnMenu(int x, int y) {
+        return x >= 600 && x <= 800;
+    }
+
+    private void dispararHabilidad(int mouseX, int mouseY) {
+        Habilidad seleccionada = menu.getHabilidadActiva();
+
+        switch (seleccionada) {
+            case BOLA:
+                if (!bola.estaActiva())
+                    bola.activar(personaje.getX(), personaje.getY(), mouseX, mouseY);
+                break;
+
+            case EXPLOSION:
+                if (!luz.estaActiva() && personaje.consumirEnergia(30))
+                    luz.activar(personaje.getX(), personaje.getY(), mouseX, mouseY);
+                break;
+
+            case BURBUJA:
+                if (!burbuja.estaActiva() && !burbuja.estaExplotando() && personaje.consumirEnergia(20))
+                    burbuja.activar(personaje.getX(), personaje.getY(), 0, 0);
+                break;
+                
+            case NINGUNA:
+                // No hacer nada si no hay habilidad seleccionada
+                break;
+        }
+    }
+
+    private void actualizarHabilidades() {
+        // Bola de fuego
+        if (bola.estaActiva()) {
+            bola.mover();
+            bola.actualizarAnimacion();
+            bola.dibujar(entorno);
+
+            if (bola.estaExplotando() && !dañoBolaAplicado) {
+                aplicarDañoArea(bola.getX(), bola.getY(), bola.getRadio(), 3);
+                dañoBolaAplicado = true;
+            }
+            if (!bola.estaActiva())
+                dañoBolaAplicado = false;
+        }
+
+        // Explosión de luz
+        if (luz.estaActiva()) {
+            luz.actualizarAnimacion();
+            luz.dibujar(entorno);
+
+            if (!dañoLuzAplicado) {
+                aplicarDañoArea(luz.getX(), luz.getY(), luz.getRadio(), 5);
+                dañoLuzAplicado = true;
+            }
+            if (!luz.estaActiva())
+                dañoLuzAplicado = false;
+        }
+
+        // Burbuja protectora
+        burbuja.seguirPersonaje(personaje.getX(), personaje.getY());
+        burbuja.actualizarAnimacion();
+        burbuja.dibujar(entorno);
+    }
+
+    private void aplicarDañoArea(double cx, double cy, double radio, int daño) {
+        for (int i = 0; i < murcielagos.length; i++) {
+            Enemigo m = murcielagos[i];
+            double dx = m.getX() - cx;
+            double dy = m.getY() - cy;
+            double distancia = Math.sqrt(dx * dx + dy * dy);
+            if (distancia <= radio) {
+                m.recibirDaño(daño);
+                if (m.estaMuerto()) {
+                    enemigosEliminados++;
+                    murcielagos[i] = generarMurcielagoAfuera();
+                }
+            }
+        }
+    }
+
+    // === Main ===
+    public static void main(String[] args) {
+        new Juego();
+    }
 }
