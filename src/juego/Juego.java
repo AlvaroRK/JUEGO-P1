@@ -69,8 +69,11 @@ public class Juego extends InterfaceJuego {
 
         if (personaje.estaMuerto() || enemigosEliminados >= 50)
             gameOver = true;
-        if (gameOver)
+        if (gameOver) {
             mostrarGameOver();
+            return;
+        }
+
     }
 
     // === Escenario y UI ===
@@ -81,12 +84,17 @@ public class Juego extends InterfaceJuego {
     }
 
     private void mostrarGameOver() {
-        entorno.cambiarFont("Arial", 32, Color.WHITE);
+        // Dibuja fondo negro por encima de todo
+        entorno.dibujarRectangulo(400, 300, 800, 600, 0, Color.BLACK);
 
+        // Texto
+        entorno.cambiarFont("Arial", 32, Color.WHITE);
         if (enemigosEliminados >= 50) {
-            entorno.escribirTexto("¡VICTORIA! Derrotaste a 50 enemigos", 150, 300);
+            entorno.escribirTexto("¡VICTORIA!", 300, 300);
+            entorno.escribirTexto("Derrotaste a 50 enemigos", 250, 340);
         } else {
-            entorno.escribirTexto("¡GAME OVER!", 250, 300);
+            entorno.escribirTexto("¡DERROTA!", 300, 300);
+            entorno.escribirTexto("Gondolf murió", 290, 340);
         }
     }
 
@@ -123,8 +131,11 @@ public class Juego extends InterfaceJuego {
             double dy = personaje.getY() - m.getY();
             double distancia = Math.sqrt(dx * dx + dy * dy);
 
-            if (distancia < 30 && m.puedePegar(burbuja))
+            if (distancia < 30 && m.puedePegar(burbuja)) {
                 personaje.recibirDaño(3);
+                murcielagos[i] = generarMurcielagoAfuera();  // Reaparece otro
+                continue; // Saltamos el resto del código, no suma eliminación
+            }
 
             if (bola.estaActiva()) {
                 double distBola = Math.hypot(bola.getX() - m.getX(), bola.getY() - m.getY());
