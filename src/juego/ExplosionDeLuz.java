@@ -41,6 +41,12 @@ public class ExplosionDeLuz extends Habilidad {
         }
     }
     
+    public void dibujar(entorno.Entorno entorno) {
+        if (activa && frameActual < sprites.length) {
+            entorno.dibujarImagen(sprites[frameActual], x, y, 0, 2.0);
+        }
+    }
+    
     public double getX() { return this.x; }
     public double getY() { return this.y; }
     public void desactivar() { this.activa = false; }

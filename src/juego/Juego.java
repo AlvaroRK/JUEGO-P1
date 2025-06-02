@@ -30,7 +30,7 @@ public class Juego extends InterfaceJuego {
 
     // === Constructor ===
     public Juego() {
-        entorno = new Entorno(this, "Proyecto para TP 7", 800, 600);
+        entorno = new Entorno(this, "Juego GRUPO 8 - P1", 800, 600);
         fondo = new ImageIcon(getClass().getResource("/imagenes/FondoTierra2D.png")).getImage();
         menu = new MenuLateral();
         personaje = new Personaje(300, 300);
@@ -91,7 +91,7 @@ public class Juego extends InterfaceJuego {
         entorno.cambiarFont("Arial", 32, Color.WHITE);
         if (enemigosEliminados >= 50) {
             entorno.escribirTexto("¡VICTORIA!", 300, 300);
-            entorno.escribirTexto("Derrotaste a 50 enemigos", 250, 340);
+            entorno.escribirTexto("Derrotaste a 50 enemigos", 220, 340);
         } else {
             entorno.escribirTexto("¡DERROTA!", 300, 300);
             entorno.escribirTexto("Gondolf murió", 290, 340);
